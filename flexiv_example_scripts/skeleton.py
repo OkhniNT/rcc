@@ -1,40 +1,16 @@
 #!/usr/bin/env python
 
-"""basics1_display_robot_states.py
-
-This tutorial does the very first thing: check connection with the robot server and print 
-received robot states.
-"""
-
-__copyright__ = "Copyright (C) 2016-2021 Flexiv Ltd. All Rights Reserved."
-__author__ = "Flexiv"
-
 import time
 import argparse
 import threading
 
-# Import Flexiv RDK Python library
 # fmt: off
 import sys
 sys.path.insert(0, "../lib_py")
 import flexivrdk
 # fmt: on
 
-def print_description():
-    """
-    Print tutorial description.
-
-    """
-    print("This tutorial does the very first thing: check connection with the robot server "
-          "and print received robot states.")
-    print()
-
-
-def print_robot_states(robot, log):
-    """
-    Print robot states data @ 1Hz.
-
-    """
+def loop(robot, log):
     # Data struct storing robot states
     robot_states = flexivrdk.RobotStates()
 
@@ -68,25 +44,19 @@ def print_robot_states(robot, log):
 def main():
     # Program Setup
     # ==============================================================================================
-    # Parse arguments
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('robot_ip', help='IP address of the robot server')
-    argparser.add_argument('local_ip', help='IP address of this PC')
-    args = argparser.parse_args()
+
+    robot_ip = "192.168.2.100"
+    local_ip = "192.168.2.102"
 
     # Define alias
     log = flexivrdk.Log()
     mode = flexivrdk.Mode
 
-    # Print description
-    log.info("Tutorial description:")
-    print_description()
-
     try:
         # RDK Initialization
         # ==========================================================================================
         # Instantiate robot interface
-        robot = flexivrdk.Robot(args.robot_ip, args.local_ip)
+        robot = flexivrdk.Robot(robot_ip, local_ip)
 
         # Clear fault on robot server if any
         if robot.isFault():
@@ -120,7 +90,7 @@ def main():
         # =============================================================================
         # Thread for printing robot states
         print_thread = threading.Thread(
-            target=print_robot_states, args=[robot, log])
+            target=loop, args=[robot, log])
         print_thread.start()
         print_thread.join()
 
