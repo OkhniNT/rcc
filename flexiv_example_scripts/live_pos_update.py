@@ -15,11 +15,16 @@ def loop(robot, log):
 
     while True:
         robot.getRobotStates(robot_states)
+        pose_tcp = robot_states.tcpPose
+        pose_pos = [pose_tcp[0], pose_tcp[1], pose_tcp[2]]
+        pose_quat = [pose_tcp[3], pose_tcp[4], pose_tcp[5], pose_tcp[6]]
+        pose_euler = quat2eulerZYX(pose_quat, degree=True)
 
         system("clear")
         log.info("TCP Pose:")
         # fmt: off
-        print('%.2f' % i for i in robot_states.tcpPose)
+        print(pose_pos)
+        print(pose_euler)
         # fmt: on
         time.sleep(0.1)
 
