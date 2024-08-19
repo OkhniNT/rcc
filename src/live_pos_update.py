@@ -10,6 +10,8 @@ sys.path.insert(0, "../lib_py")
 import flexivrdk
 # fmt: on
 
+from utility import quat2eulerZYX
+
 def loop(robot, log):
     robot_states = flexivrdk.RobotStates()
 
@@ -23,8 +25,10 @@ def loop(robot, log):
         system("clear")
         log.info("TCP Pose:")
         # fmt: off
+        pose_full = pose_pos + pose_euler
         print(pose_pos)
         print(pose_euler)
+        print(pose_full)
         # fmt: on
         time.sleep(0.1)
 
