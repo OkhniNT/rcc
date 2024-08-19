@@ -19,6 +19,9 @@ def loop(robot, log, mode):
     robot.setMode(mode.NRT_PLAN_EXECUTION)
     robot.executePlan("PLAN-FreeDriveAuto")
 
+    if not robot.isBusy():
+        exit(0)
+
     poses = []
 
     for _ in range(0, 19):
