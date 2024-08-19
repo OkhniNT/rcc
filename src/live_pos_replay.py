@@ -12,12 +12,34 @@ import flexivrdk
 # fmt: on
 
 from utility import quat2eulerZYX
+from utility import list2str
+from utility import parse_pt_states
+
+# Maximum contact wrench [fx, fy, fz, mx, my, mz] [N][Nm]
+MAX_CONTACT_WRENCH = [50.0, 50.0, 50.0, 15.0, 15.0, 15.0]
 
 def loop(robot, log, mode):
     robot_states = flexivrdk.RobotStates()
-    robot.setMode(mode.NRT_PLAN_EXECUTION)
+    poses = np.load("poses.npy")
 
-    poses = []
+    robot.setMode(mode.NRT_PRIMITIVE_EXECUTION)
+
+    for i in range(0, len(poses) - 1):
+        target_pos = [poses[i][0], poses[i][1], poses[i][2]]
+        target_euler = [poses[i][3], poses[i][4], poses[i][5]]
+        
+        robot.executePrimitive(
+            "MoveCompliance(target="
+            + list2str(target_pos)
+            + list2str(target_euler)
+            + "WORLD WORLD_ORIGIN, maxVel=0.3, enableMaxContactWrench=1, maxContactWrench="
+            + list2str(MAX_CONTACT_WRENCH) + ")")
+
+        # Wait for robot to reach target location by checking for "reachedTarget = 1"
+        # in the list of current primitive states
+        while (parse_pt_states(robot.getPrimitiveStates(), "reachedTarget") != "1"):
+            time.sleep(1)
+
 
     for _ in range(0, 19):
         robot.getRobotStates(robot_states)
@@ -33,10 +55,6 @@ def loop(robot, log, mode):
         # fmt: on
         poses.append(pose_full)
         time.sleep(0.5)
-
-    print(poses)
-    with open("poses.npy", "wb") as f:
-        np.save(f, np.array(poses))
 
 def main():
     robot_ip = "192.168.2.100"
