@@ -34,6 +34,7 @@ def loop(robot, log):
         np.append(poses, pose_full)
         time.sleep(0.5)
 
+    print(poses)
     with open("poses.npy", "wb") as f:
         np.save(f, poses)
 
