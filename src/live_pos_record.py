@@ -16,7 +16,9 @@ from utility import quat2eulerZYX
 def loop(robot, log):
     robot_states = flexivrdk.RobotStates()
 
-    while True:
+    poses = np.empty([6, 1])
+
+    for i in range(0, 19):
         robot.getRobotStates(robot_states)
         pose_tcp = robot_states.tcpPose
         pose_pos = [pose_tcp[0], pose_tcp[1], pose_tcp[2]]
@@ -29,8 +31,11 @@ def loop(robot, log):
         pose_full = pose_pos + pose_euler
         print(pose_full)
         # fmt: on
+        np.append(poses, pose_full)
         time.sleep(0.5)
 
+    with open("poses.npy", "wb") as f:
+        np.save(f, poses)
 
 def main():
     robot_ip = "192.168.2.100"
