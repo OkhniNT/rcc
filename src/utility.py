@@ -8,10 +8,36 @@ Utility methods.
 __copyright__ = "Copyright (C) 2016-2021 Flexiv Ltd. All Rights Reserved."
 __author__ = "Flexiv"
 
-import math
-# pip install scipy
+import flexivrdk
+import time
 from scipy.spatial.transform import Rotation as R
 
+def connect_robot(robot_ip, local_ip, log):
+    robot = flexivrdk.Robot(robot_ip, local_ip)
+
+    if robot.isFault():
+        log.warn("Fault occurred on robot server, trying to clear ...")
+        robot.clearFault()
+        time.sleep(2)
+        if robot.isFault():
+            log.error("Fault cannot be cleared, exiting ...")
+            exit(1)
+        log.info("Fault on robot server is cleared")
+
+    log.info("Enabling robot ...")
+    robot.enable()
+
+    seconds_waited = 0
+    while not robot.isOperational():
+        time.sleep(1)
+        seconds_waited += 1
+        if seconds_waited == 10:
+            log.warn(
+                "Still waiting for robot to become operational, please check that the robot 1) "
+                "has no fault, 2) is in [Auto (remote)] mode")
+
+    log.info("Robot is now operational")
+    return robot
 
 def quat2eulerZYX(quat, degree=False):
     """
