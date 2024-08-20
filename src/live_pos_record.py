@@ -17,6 +17,7 @@ def loop(robot, log, mode):
     robot_states = flexivrdk.RobotStates()
 
     robot.setMode(mode.NRT_PLAN_EXECUTION)
+    robot.executePrimitive("Home()")
     robot.executePlan("PLAN-FreeDriveAuto")
 
     if not robot.isBusy():

@@ -2,7 +2,6 @@
 
 import time
 import threading
-from os import system
 import numpy as np
 
 # fmt: off
@@ -11,7 +10,6 @@ sys.path.insert(0, "../lib_py")
 import flexivrdk
 # fmt: on
 
-from utility import quat2eulerZYX
 from utility import list2str
 from utility import parse_pt_states
 
@@ -19,10 +17,10 @@ from utility import parse_pt_states
 MAX_CONTACT_WRENCH = [50.0, 50.0, 50.0, 15.0, 15.0, 15.0]
 
 def loop(robot, log, mode):
-    robot_states = flexivrdk.RobotStates()
     poses = np.load("poses.npy")
 
     robot.setMode(mode.NRT_PRIMITIVE_EXECUTION)
+    robot.executePrimitive("Home()")
 
     for i in range(0, len(poses) - 1):
         target_pos = [poses[i][0], poses[i][1], poses[i][2]]
@@ -32,29 +30,13 @@ def loop(robot, log, mode):
             "MoveCompliance(target="
             + list2str(target_pos)
             + list2str(target_euler)
-            + "WORLD WORLD_ORIGIN, maxVel=0.3, enableMaxContactWrench=1, maxContactWrench="
+            + "WORLD WORLD_ORIGIN, maxVel=0.1, enableMaxContactWrench=1, maxContactWrench="
             + list2str(MAX_CONTACT_WRENCH) + ")")
 
         # Wait for robot to reach target location by checking for "reachedTarget = 1"
         # in the list of current primitive states
         while (parse_pt_states(robot.getPrimitiveStates(), "reachedTarget") != "1"):
-            time.sleep(1)
-
-
-    for _ in range(0, 19):
-        robot.getRobotStates(robot_states)
-        pose_tcp = robot_states.tcpPose
-        pose_pos = [pose_tcp[0], pose_tcp[1], pose_tcp[2]]
-        pose_quat = [pose_tcp[3], pose_tcp[4], pose_tcp[5], pose_tcp[6]]
-        pose_euler = quat2eulerZYX(pose_quat, degree=True)
-
-        log.info("TCP Pose:")
-        # fmt: off
-        pose_full = pose_pos + pose_euler
-        print(pose_full)
-        # fmt: on
-        poses.append(pose_full)
-        time.sleep(0.5)
+            time.sleep(0.05)
 
 def main():
     robot_ip = "192.168.2.100"
