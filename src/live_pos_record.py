@@ -16,8 +16,9 @@ from utility import quat2eulerZYX
 def loop(robot, log, mode):
     robot_states = flexivrdk.RobotStates()
 
-    robot.setMode(mode.NRT_PLAN_EXECUTION)
+    robot.setMode(mode.NRT_PRIMITIVE_EXECUTION)
     robot.executePrimitive("Home()")
+    robot.setMode(mode.NRT_PLAN_EXECUTION)
     robot.executePlan("PLAN-FreeDriveAuto")
 
     if not robot.isBusy():
