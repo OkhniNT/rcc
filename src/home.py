@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 # fmt: off
+import sys
 sys.path.insert(0, "../lib_py")
 import flexivrdk
-import sys
 from utility import connect_robot
 # fmt: on
 
